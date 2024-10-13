@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/authRoutes');
+const quizRoutes = require('./routes/quizRoutes');
 
 // Load environment variables
 dotenv.config();
@@ -25,6 +26,9 @@ app.get('/', (req, res) => {
 
 // Use authentication routes
 app.use('/api/auth', authRoutes);
+
+// Use quiz routes
+app.use('/api/quizzes', quizRoutes);
 
 // Define the port
 const PORT = process.env.PORT || 5000;

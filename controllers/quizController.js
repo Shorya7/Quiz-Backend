@@ -1,4 +1,5 @@
 const Quiz = require('../models/Quiz');
+const Result = require('../models/Result');
 
 // Create a new quiz
 exports.createQuiz = async (req, res) => {
@@ -8,7 +9,7 @@ exports.createQuiz = async (req, res) => {
       title,
       description,
       questions,
-      createdBy: req.user  // User who created the quiz
+      createdBy: req.user
     });
 
     await quiz.save();
@@ -43,23 +44,45 @@ exports.getQuizById = async (req, res) => {
 
 // Submit quiz and get result
 exports.submitQuiz = async (req, res) => {
-  const { answers } = req.body; // Array of answers (indexes)
+  const { answers } = req.body; 
   try {
     const quiz = await Quiz.findById(req.params.id);
     if (!quiz) {
       return res.status(404).json({ message: 'Quiz not found' });
     }
 
-    // Check answers and calculate score
     let score = 0;
     quiz.questions.forEach((question, index) => {
       if (answers[index] === question.correctOption) {
-        score += 1;
+        score += 4;
       }
     });
+    // console.log('req.user:', req.user);
 
-    res.json({ score, totalQuestions: quiz.questions.length });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
-  }
+
+    const result = new Result({
+        user: req.user,  
+        quiz: quiz._id,
+        answers,
+        score,
+        totalQuestions: quiz.questions.length
+      });
+  
+      await result.save();
+  
+      res.json({ message: 'Quiz submitted successfully', score, totalQuestions: quiz.questions.length });
+    } catch (error) {
+      res.status(500).json({ message: 'Server error' });
+    }
 };
+
+// Get all results of the logged-in user
+exports.getUserResults = async (req, res) => {
+    try {
+      const results = await Result.find({ user: req.user }).populate('quiz', 'title description');
+      res.json(results);
+    } catch (error) {
+      res.status(500).json({ message: 'Server error' });
+    }
+  };
+  

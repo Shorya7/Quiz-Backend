@@ -19,18 +19,14 @@ mongoose.connect(process.env.MONGO_URI, {
   useUnifiedTopology: true
 }).then(() => console.log('MongoDB connected')).catch(err => console.error(err));
 
-// Basic route
 app.get('/', (req, res) => {
   res.send('Welcome to the Quiz API');
 });
 
-// Use authentication routes
 app.use('/api/auth', authRoutes);
 
-// Use quiz routes
 app.use('/api/quizzes', quizRoutes);
 
-// Define the port
 const PORT = process.env.PORT || 5000;
 
 // Start the server
